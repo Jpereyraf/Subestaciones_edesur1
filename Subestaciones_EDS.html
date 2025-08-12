@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>SUBESTACIONES EDESUR</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/SUBESTACIONESEDESUR_1.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[18.443961624558476,-70.0080314513929],[18.52002081935127,-69.86204497589243]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>SUBESTACIONES EDESUR</h2>';
+        };
+        title.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleMaps_0');
+        map.getPane('pane_GoogleMaps_0').style.zIndex = 400;
+        var layer_GoogleMaps_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleMaps_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        layer_GoogleMaps_0;
+        map.addLayer(layer_GoogleMaps_0);
+        function pop_SUBESTACIONESEDESUR_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nombre</th>\
+                        <td class="visible-with-data" id="Nombre">' + (feature.properties['Nombre'] !== null ? autolinker.link(String(feature.properties['Nombre']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Pot.(MVA)</th>\
+                        <td class="visible-with-data" id="Pot.(MVA)">' + (feature.properties['Pot.(MVA)'] !== null ? autolinker.link(String(feature.properties['Pot.(MVA)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_SUBESTACIONESEDESUR_1_0(feature) {
+            switch(String(feature.properties['Categoria'])) {
+                case 'EDESUR':
+                    return {
+                pane: 'pane_SUBESTACIONESEDESUR_1',
+                radius: 9.6,
+                opacity: 1,
+                color: 'rgba(238,195,46,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 5.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(218,119,28,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TERCERO':
+                    return {
+                pane: 'pane_SUBESTACIONESEDESUR_1',
+                radius: 7.6,
+                opacity: 1,
+                color: 'rgba(31,222,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 5.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,170,93,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_SUBESTACIONESEDESUR_1',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(50,87,128,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(213,102,139,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_SUBESTACIONESEDESUR_1');
+        map.getPane('pane_SUBESTACIONESEDESUR_1').style.zIndex = 401;
+        map.getPane('pane_SUBESTACIONESEDESUR_1').style['mix-blend-mode'] = 'normal';
+        var layer_SUBESTACIONESEDESUR_1 = new L.geoJson(json_SUBESTACIONESEDESUR_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_SUBESTACIONESEDESUR_1',
+            layerName: 'layer_SUBESTACIONESEDESUR_1',
+            pane: 'pane_SUBESTACIONESEDESUR_1',
+            onEachFeature: pop_SUBESTACIONESEDESUR_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_SUBESTACIONESEDESUR_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_SUBESTACIONESEDESUR_1);
+        map.addLayer(layer_SUBESTACIONESEDESUR_1);
+        const url = {"Nominatim": "https://nominatim.openstreetmap.org/search?format=geojson&addressdetails=1&",
+        "BAN": "https://api-adresse.data.gouv.fr/search/?"}
+        var photonControl = L.control.photon({
+            url: url["Nominatim"],
+            feedbackLabel: '',
+            position: 'topleft',
+            includePosition: true,
+            initial: true,
+            // resultsHandler: myHandler,
+        }).addTo(map);
+        photonControl._container.childNodes[0].style.borderRadius="10px"
+        // Create a variable to store the geoJSON data
+        var x = null;
+        // Create a variable to store the marker
+        var marker = null;
+        // Add an event listener to the Photon control to create a marker from the returned geoJSON data
+        var z = null;
+        photonControl.on('selected', function(e) {
+            console.log(photonControl.search.resultsContainer);
+            if (x != null) {
+                map.removeLayer(obj3.marker);
+                map.removeLayer(x);
+            }
+            obj2.gcd = e.choice;
+            x = L.geoJSON(obj2.gcd).addTo(map);
+            var label = typeof obj2.gcd.properties.label === 'undefined' ? obj2.gcd.properties.display_name : obj2.gcd.properties.label;
+            obj3.marker = L.marker(x.getLayers()[0].getLatLng()).bindPopup(label).addTo(map);
+            map.setView(x.getLayers()[0].getLatLng(), 17);
+            z = typeof e.choice.properties.label === 'undefined'? e.choice.properties.display_name : e.choice.properties.label;
+            console.log(e);
+            e.target.input.value = z;
+        });
+        var search = document.getElementsByClassName("leaflet-photon leaflet-control")[0];
+        search.classList.add("leaflet-control-search")
+        search.style.display = "flex";
+        search.style.backgroundColor="rgba(255,255,255,0.5)" 
+
+        // Créer le nouvel élément bouton
+        var button = document.createElement("div");
+        button.id = "gcd-button-control";
+        button.className = "gcd-gl-btn fa fa-search search-button";
+
+        // Ajouter le bouton à l'élément parent
+        search.insertBefore(button, search.firstChild);
+        last = search.lastChild;
+        last.style.display = "none";
+        button.addEventListener("click", function (e) {
+            if (last.style.display === "none") {
+                last.style.display = "block";
+            } else {
+                last.style.display = "none";
+            }
+        });
+        setBounds();
+        var i = 0;
+        layer_SUBESTACIONESEDESUR_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((exp_label_SUBESTACIONESEDESUR_1_eval_expression(context) !== null?String('<div style="color: #323232; font-size: 8pt; font-weight: bold; font-family: \'Open Sans\', sans-serif;">' + exp_label_SUBESTACIONESEDESUR_1_eval_expression(context)) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_SUBESTACIONESEDESUR_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        map.addControl(new L.Control.Search({
+            layer: layer_SUBESTACIONESEDESUR_1,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'Nombre'}));
+        if (typeof url === 'undefined') {
+            document.getElementsByClassName('search-button')[0].className += ' fa fa-binoculars';
+        } else {
+            document.getElementsByClassName('search-button')[1].className += ' fa fa-binoculars';
+        }
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Categoria": "str","Nombre": "str","Código": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+        var i = 0;
+        layer_SUBESTACIONESEDESUR_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((exp_label_SUBESTACIONESEDESUR_1_eval_expression(context) !== null?String('<div style="color: #323232; font-size: 8pt; font-weight: bold; font-family: \'Open Sans\', sans-serif;">' + exp_label_SUBESTACIONESEDESUR_1_eval_expression(context)) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_SUBESTACIONESEDESUR_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Categoria = document.createElement('div');
+            div_Categoria.id = "div_Categoria";
+            div_Categoria.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Categoria);
+            sel_Categoria = document.createElement('select');
+            sel_Categoria.multiple = true;
+            sel_Categoria.size = 2;
+            sel_Categoria.id = "sel_Categoria";
+            var Categoria_options_str = "<option value='' unselected></option>";
+            sel_Categoria.onchange = function(){filterFunc()};
+            Categoria_options_str  += '<option value="EDESUR">EDESUR</option>';
+            Categoria_options_str  += '<option value="TERCERO">TERCERO</option>';
+            sel_Categoria.innerHTML = Categoria_options_str;
+            div_Categoria.appendChild(sel_Categoria);
+            var lab_Categoria = document.createElement('div');
+            lab_Categoria.innerHTML = 'Categoria';
+            lab_Categoria.className = 'filterlabel';
+            div_Categoria.appendChild(lab_Categoria);
+            var reset_Categoria = document.createElement('div');
+            reset_Categoria.innerHTML = 'clear filter';
+            reset_Categoria.className = 'filterlabel';
+            reset_Categoria.onclick = function() {
+                var options = document.getElementById("sel_Categoria").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Categoria.appendChild(reset_Categoria);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Nombre = document.createElement('div');
+            div_Nombre.id = "div_Nombre";
+            div_Nombre.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Nombre);
+            sel_Nombre = document.createElement('select');
+            sel_Nombre.multiple = true;
+            sel_Nombre.size = 10;
+            sel_Nombre.id = "sel_Nombre";
+            var Nombre_options_str = "<option value='' unselected></option>";
+            sel_Nombre.onchange = function(){filterFunc()};
+            Nombre_options_str  += '<option value="ACUEDUCTO INAPA SAN CRISTOBAL">ACUEDUCTO INAPA SAN CRISTOBAL</option>';
+            Nombre_options_str  += '<option value="ACUEDUCTO SUR - OESTE">ACUEDUCTO SUR - OESTE</option>';
+            Nombre_options_str  += '<option value="AEREOPUERTO BARAHONA">AEREOPUERTO BARAHONA</option>';
+            Nombre_options_str  += '<option value="ALAMBRES DOMINICANOS">ALAMBRES DOMINICANOS</option>';
+            Nombre_options_str  += '<option value="ALUMINO DOMINICANA">ALUMINO DOMINICANA</option>';
+            Nombre_options_str  += '<option value="ARROYO HONDO T1">ARROYO HONDO T1</option>';
+            Nombre_options_str  += '<option value="ARROYO HONDO T2">ARROYO HONDO T2</option>';
+            Nombre_options_str  += '<option value="AZUA">AZUA</option>';
+            Nombre_options_str  += '<option value="BANI MATADERO T1">BANI MATADERO T1</option>';
+            Nombre_options_str  += '<option value="BANI MATADERO T2">BANI MATADERO T2</option>';
+            Nombre_options_str  += '<option value="BANI PER">BANI PER</option>';
+            Nombre_options_str  += '<option value="BANI TR2">BANI TR2</option>';
+            Nombre_options_str  += '<option value="BARAHONA">BARAHONA</option>';
+            Nombre_options_str  += '<option value="BAYONA T1">BAYONA T1</option>';
+            Nombre_options_str  += '<option value="CAASD I">CAASD I</option>';
+            Nombre_options_str  += '<option value="CAASD II">CAASD II</option>';
+            Nombre_options_str  += '<option value="CABAYONA">CABAYONA</option>';
+            Nombre_options_str  += '<option value="CAMPAMENTO 16 DE AGOSTO">CAMPAMENTO 16 DE AGOSTO</option>';
+            Nombre_options_str  += '<option value="CARREFOUR 69 kV">CARREFOUR 69 kV</option>';
+            Nombre_options_str  += '<option value="CEMENTOS SANTO DOMINGO">CEMENTOS SANTO DOMINGO</option>';
+            Nombre_options_str  += '<option value="CENTRO DE OPERACIONES">CENTRO DE OPERACIONES</option>';
+            Nombre_options_str  += '<option value="CERVECERIA BOHEMIA">CERVECERIA BOHEMIA</option>';
+            Nombre_options_str  += '<option value="CITRICOS NACIONALES T2">CITRICOS NACIONALES T2</option>';
+            Nombre_options_str  += '<option value="CIUDAD SATELITE">CIUDAD SATELITE</option>';
+            Nombre_options_str  += '<option value="CODETEL">CODETEL</option>';
+            Nombre_options_str  += '<option value="CORP ZONA FCA IND SANTIAGO T01">CORP ZONA FCA IND SANTIAGO T01</option>';
+            Nombre_options_str  += '<option value="CORP ZONA FCA IND SANTIAGO T02">CORP ZONA FCA IND SANTIAGO T02</option>';
+            Nombre_options_str  += '<option value="CORVI PVC">CORVI PVC</option>';
+            Nombre_options_str  += '<option value="CRUCE DE OCOA">CRUCE DE OCOA</option>';
+            Nombre_options_str  += '<option value="DISDO">DISDO</option>';
+            Nombre_options_str  += '<option value="ELIAS PIÑA">ELIAS PIÑA</option>';
+            Nombre_options_str  += '<option value="EMBAJADOR TR1">EMBAJADOR TR1</option>';
+            Nombre_options_str  += '<option value="EMBAJADOR TR2">EMBAJADOR TR2</option>';
+            Nombre_options_str  += '<option value="FONDO NEGRO">FONDO NEGRO</option>';
+            Nombre_options_str  += '<option value="GUANITO II">GUANITO II</option>';
+            Nombre_options_str  += '<option value="HACHE">HACHE</option>';
+            Nombre_options_str  += '<option value="HAINA GRANITOS BOJOS">HAINA GRANITOS BOJOS</option>';
+            Nombre_options_str  += '<option value="HATO NUEVO">HATO NUEVO</option>';
+            Nombre_options_str  += '<option value="HERRERA NUEVA TR2">HERRERA NUEVA TR2</option>';
+            Nombre_options_str  += '<option value="HERRERA138 kV">HERRERA138 kV</option>';
+            Nombre_options_str  += '<option value="INAPA">INAPA</option>';
+            Nombre_options_str  += '<option value="INDUSTRIA DEL PAPEL SIDO">INDUSTRIA DEL PAPEL SIDO</option>';
+            Nombre_options_str  += '<option value="INGENIO BARAHONA">INGENIO BARAHONA</option>';
+            Nombre_options_str  += '<option value="INGENIO CAEI">INGENIO CAEI</option>';
+            Nombre_options_str  += '<option value="JUANCHO_LOS COCOS">JUANCHO_LOS COCOS</option>';
+            Nombre_options_str  += '<option value="K.M. 10 1/2 TR1">K.M. 10 1/2 TR1</option>';
+            Nombre_options_str  += '<option value="K.M. 10 1/2 TR2">K.M. 10 1/2 TR2</option>';
+            Nombre_options_str  += '<option value="K.M. 10 1/2 TR3">K.M. 10 1/2 TR3</option>';
+            Nombre_options_str  += '<option value="KHOURY INDUSTRIAL">KHOURY INDUSTRIAL</option>';
+            Nombre_options_str  += '<option value="KM 15 DE AZUA">KM 15 DE AZUA</option>';
+            Nombre_options_str  += '<option value="LA 40 T1">LA 40 T1</option>';
+            Nombre_options_str  += '<option value="LA CUMBRE">LA CUMBRE</option>';
+            Nombre_options_str  += '<option value="LA FAMOSA">LA FAMOSA</option>';
+            Nombre_options_str  += '<option value="LAS MATAS">LAS MATAS</option>';
+            Nombre_options_str  += '<option value="LOS PRADOS TR1">LOS PRADOS TR1</option>';
+            Nombre_options_str  += '<option value="LOS PRADOS TR2">LOS PRADOS TR2</option>';
+            Nombre_options_str  += '<option value="LOS PRADOS TR3">LOS PRADOS TR3</option>';
+            Nombre_options_str  += '<option value="MADRE VIEJA T1">MADRE VIEJA T1</option>';
+            Nombre_options_str  += '<option value="MADRE VIEJA T2">MADRE VIEJA T2</option>';
+            Nombre_options_str  += '<option value="MATADERO">MATADERO</option>';
+            Nombre_options_str  += '<option value="MATADERO T2">MATADERO T2</option>';
+            Nombre_options_str  += '<option value="METROPOLITANO TR1">METROPOLITANO TR1</option>';
+            Nombre_options_str  += '<option value="METROPOLITANO TR2">METROPOLITANO TR2</option>';
+            Nombre_options_str  += '<option value="NEYBA">NEYBA</option>';
+            Nombre_options_str  += '<option value="OLEODUCTO FALCON">OLEODUCTO FALCON</option>';
+            Nombre_options_str  += '<option value="PALAMARA">PALAMARA</option>';
+            Nombre_options_str  += '<option value="PARAISO 138 KV">PARAISO 138 KV</option>';
+            Nombre_options_str  += '<option value="PARAISO 138 KV TR3">PARAISO 138 KV TR3</option>';
+            Nombre_options_str  += '<option value="PARQUE INDUSTRIAL DUARTE">PARQUE INDUSTRIAL DUARTE</option>';
+            Nombre_options_str  += '<option value="PEDERNALES 138 KV">PEDERNALES 138 KV</option>';
+            Nombre_options_str  += '<option value="PEDRO A. RIVERA (INDUVECA)">PEDRO A. RIVERA (INDUVECA)</option>';
+            Nombre_options_str  += '<option value="PIISA 69 kV">PIISA 69 kV</option>';
+            Nombre_options_str  += '<option value="PISOS Y TECHADOS TORGINOL">PISOS Y TECHADOS TORGINOL</option>';
+            Nombre_options_str  += '<option value="PIZARRETE">PIZARRETE</option>';
+            Nombre_options_str  += '<option value="PLASTICOS FLEXIBLES">PLASTICOS FLEXIBLES</option>';
+            Nombre_options_str  += '<option value="PRODUCTOS LINDA">PRODUCTOS LINDA</option>';
+            Nombre_options_str  += '<option value="PUERTO DE HAINA">PUERTO DE HAINA</option>';
+            Nombre_options_str  += '<option value="PUERTO ISABELA">PUERTO ISABELA</option>';
+            Nombre_options_str  += '<option value="QUITA CORAZA 69 kV">QUITA CORAZA 69 kV</option>';
+            Nombre_options_str  += '<option value="RANCHO ARRIBA">RANCHO ARRIBA</option>';
+            Nombre_options_str  += '<option value="SABANA REAL 7.2 KV">SABANA REAL 7.2 KV</option>';
+            Nombre_options_str  += '<option value="SABANETA">SABANETA</option>';
+            Nombre_options_str  += '<option value="SALINAS">SALINAS</option>';
+            Nombre_options_str  += '<option value="SAN CRISTOBAL NORTE">SAN CRISTOBAL NORTE</option>';
+            Nombre_options_str  += '<option value="SAN JOSE DE OCOA">SAN JOSE DE OCOA</option>';
+            Nombre_options_str  += '<option value="SAN JUAN PUEBLO">SAN JUAN PUEBLO</option>';
+            Nombre_options_str  += '<option value="SOCIEDAD INDUSTRIAL DOMINICANA">SOCIEDAD INDUSTRIAL DOMINICANA</option>';
+            Nombre_options_str  += '<option value="SODOCAL">SODOCAL</option>';
+            Nombre_options_str  += '<option value="UASD T1">UASD T1</option>';
+            Nombre_options_str  += '<option value="UASD T2">UASD T2</option>';
+            Nombre_options_str  += '<option value="UASD T3">UASD T3</option>';
+            Nombre_options_str  += '<option value="VALLEJUELO 69 kV">VALLEJUELO 69 kV</option>';
+            Nombre_options_str  += '<option value="VICENTE NOBLE">VICENTE NOBLE</option>';
+            Nombre_options_str  += '<option value="VILLA ALTAGRACIA">VILLA ALTAGRACIA</option>';
+            Nombre_options_str  += '<option value="VILLARPANDO">VILLARPANDO</option>';
+            Nombre_options_str  += '<option value="YAGUATE 69kV">YAGUATE 69kV</option>';
+            Nombre_options_str  += '<option value="ZONA FRANCA BARAHONA">ZONA FRANCA BARAHONA</option>';
+            Nombre_options_str  += '<option value="ZONA FRANCA DE ALCARRIZO">ZONA FRANCA DE ALCARRIZO</option>';
+            Nombre_options_str  += '<option value="ZONA FRANCA NIGUA">ZONA FRANCA NIGUA</option>';
+            Nombre_options_str  += '<option value="ZONA FRANCA VILLA ALTAGRACIA">ZONA FRANCA VILLA ALTAGRACIA</option>';
+            sel_Nombre.innerHTML = Nombre_options_str;
+            div_Nombre.appendChild(sel_Nombre);
+            var lab_Nombre = document.createElement('div');
+            lab_Nombre.innerHTML = 'Nombre';
+            lab_Nombre.className = 'filterlabel';
+            div_Nombre.appendChild(lab_Nombre);
+            var reset_Nombre = document.createElement('div');
+            reset_Nombre.innerHTML = 'clear filter';
+            reset_Nombre.className = 'filterlabel';
+            reset_Nombre.onclick = function() {
+                var options = document.getElementById("sel_Nombre").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Nombre.appendChild(reset_Nombre);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Cdigo = document.createElement('div');
+            div_Cdigo.id = "div_Cdigo";
+            div_Cdigo.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Cdigo);
+            sel_Cdigo = document.createElement('select');
+            sel_Cdigo.multiple = true;
+            sel_Cdigo.size = 10;
+            sel_Cdigo.id = "sel_Cdigo";
+            var Cdigo_options_str = "<option value='' unselected></option>";
+            sel_Cdigo.onchange = function(){filterFunc()};
+            Cdigo_options_str  += '<option value="ABAR6">ABAR6</option>';
+            Cdigo_options_str  += '<option value="ABCO6">ABCO6</option>';
+            Cdigo_options_str  += '<option value="ADOM6">ADOM6</option>';
+            Cdigo_options_str  += '<option value="AHON61">AHON61</option>';
+            Cdigo_options_str  += '<option value="AHON62">AHON62</option>';
+            Cdigo_options_str  += '<option value="AISC6">AISC6</option>';
+            Cdigo_options_str  += '<option value="ALDO6">ALDO6</option>';
+            Cdigo_options_str  += '<option value="ASUR6">ASUR6</option>';
+            Cdigo_options_str  += '<option value="AZUA6">AZUA6</option>';
+            Cdigo_options_str  += '<option value="BANI62">BANI62</option>';
+            Cdigo_options_str  += '<option value="BANP6">BANP6</option>';
+            Cdigo_options_str  += '<option value="BARA6">BARA6</option>';
+            Cdigo_options_str  += '<option value="BAYO61">BAYO61</option>';
+            Cdigo_options_str  += '<option value="BMAT61">BMAT61</option>';
+            Cdigo_options_str  += '<option value="BMAT62">BMAT62</option>';
+            Cdigo_options_str  += '<option value="BOHE6">BOHE6</option>';
+            Cdigo_options_str  += '<option value="C16A6">C16A6</option>';
+            Cdigo_options_str  += '<option value="CAAS61">CAAS61</option>';
+            Cdigo_options_str  += '<option value="CAAS62">CAAS62</option>';
+            Cdigo_options_str  += '<option value="CABA6">CABA6</option>';
+            Cdigo_options_str  += '<option value="CARR6">CARR6</option>';
+            Cdigo_options_str  += '<option value="CNAC62">CNAC62</option>';
+            Cdigo_options_str  += '<option value="COCO6">COCO6</option>';
+            Cdigo_options_str  += '<option value="CODE6">CODE6</option>';
+            Cdigo_options_str  += '<option value="COHE6">COHE6</option>';
+            Cdigo_options_str  += '<option value="CORV6">CORV6</option>';
+            Cdigo_options_str  += '<option value="CSAT6">CSAT6</option>';
+            Cdigo_options_str  += '<option value="CUAR61">CUAR61</option>';
+            Cdigo_options_str  += '<option value="CUMB6">CUMB6</option>';
+            Cdigo_options_str  += '<option value="ELPI6">ELPI6</option>';
+            Cdigo_options_str  += '<option value="EMBA81">EMBA81</option>';
+            Cdigo_options_str  += '<option value="EMBA82">EMBA82</option>';
+            Cdigo_options_str  += '<option value="FNEG6">FNEG6</option>';
+            Cdigo_options_str  += '<option value="GRBO6">GRBO6</option>';
+            Cdigo_options_str  += '<option value="GUAN6">GUAN6</option>';
+            Cdigo_options_str  += '<option value="HACH6">HACH6</option>';
+            Cdigo_options_str  += '<option value="HCTO8">HCTO8</option>';
+            Cdigo_options_str  += '<option value="HERR62">HERR62</option>';
+            Cdigo_options_str  += '<option value="HNUE6">HNUE6</option>';
+            Cdigo_options_str  += '<option value="IBAR6">IBAR6</option>';
+            Cdigo_options_str  += '<option value="ICAE6">ICAE6</option>';
+            Cdigo_options_str  += '<option value="INAP6">INAP6</option>';
+            Cdigo_options_str  += '<option value="ISDO6">ISDO6</option>';
+            Cdigo_options_str  += '<option value="JUCO8">JUCO8</option>';
+            Cdigo_options_str  += '<option value="KDIE61">KDIE61</option>';
+            Cdigo_options_str  += '<option value="KDIE62">KDIE62</option>';
+            Cdigo_options_str  += '<option value="KDIE63">KDIE63</option>';
+            Cdigo_options_str  += '<option value="KIND6">KIND6</option>';
+            Cdigo_options_str  += '<option value="KQAZ6">KQAZ6</option>';
+            Cdigo_options_str  += '<option value="LFAM6">LFAM6</option>';
+            Cdigo_options_str  += '<option value="LMAT6">LMAT6</option>';
+            Cdigo_options_str  += '<option value="LPRA81">LPRA81</option>';
+            Cdigo_options_str  += '<option value="LPRA82">LPRA82</option>';
+            Cdigo_options_str  += '<option value="LPRA83">LPRA83</option>';
+            Cdigo_options_str  += '<option value="MATA8">MATA8</option>';
+            Cdigo_options_str  += '<option value="MATA82">MATA82</option>';
+            Cdigo_options_str  += '<option value="METR61">METR61</option>';
+            Cdigo_options_str  += '<option value="METR62">METR62</option>';
+            Cdigo_options_str  += '<option value="MVIE61">MVIE61</option>';
+            Cdigo_options_str  += '<option value="MVIE62">MVIE62</option>';
+            Cdigo_options_str  += '<option value="NEYB6">NEYB6</option>';
+            Cdigo_options_str  += '<option value="OFAL6">OFAL6</option>';
+            Cdigo_options_str  += '<option value="PALA6">PALA6</option>';
+            Cdigo_options_str  += '<option value="PARA8">PARA8</option>';
+            Cdigo_options_str  += '<option value="PARA83">PARA83</option>';
+            Cdigo_options_str  += '<option value="PDER81">PDER81</option>';
+            Cdigo_options_str  += '<option value="PHAI6">PHAI6</option>';
+            Cdigo_options_str  += '<option value="PIDU6">PIDU6</option>';
+            Cdigo_options_str  += '<option value="PISA6">PISA6</option>';
+            Cdigo_options_str  += '<option value="PIZA6">PIZA6</option>';
+            Cdigo_options_str  += '<option value="PLAS6">PLAS6</option>';
+            Cdigo_options_str  += '<option value="PRLI6">PRLI6</option>';
+            Cdigo_options_str  += '<option value="PSID6">PSID6</option>';
+            Cdigo_options_str  += '<option value="PTOR6">PTOR6</option>';
+            Cdigo_options_str  += '<option value="PUIS6">PUIS6</option>';
+            Cdigo_options_str  += '<option value="QCOR6">QCOR6</option>';
+            Cdigo_options_str  += '<option value="RARR6">RARR6</option>';
+            Cdigo_options_str  += '<option value="RIVE6">RIVE6</option>';
+            Cdigo_options_str  += '<option value="SABA1">SABA1</option>';
+            Cdigo_options_str  += '<option value="SALI6">SALI6</option>';
+            Cdigo_options_str  += '<option value="SARE7">SARE7</option>';
+            Cdigo_options_str  += '<option value="SCNO81">SCNO81</option>';
+            Cdigo_options_str  += '<option value="SIDO6">SIDO6</option>';
+            Cdigo_options_str  += '<option value="SJOC6">SJOC6</option>';
+            Cdigo_options_str  += '<option value="SJUA6">SJUA6</option>';
+            Cdigo_options_str  += '<option value="SODO6">SODO6</option>';
+            Cdigo_options_str  += '<option value="UASD81">UASD81</option>';
+            Cdigo_options_str  += '<option value="UASD82">UASD82</option>';
+            Cdigo_options_str  += '<option value="UASD83">UASD83</option>';
+            Cdigo_options_str  += '<option value="VAJU6">VAJU6</option>';
+            Cdigo_options_str  += '<option value="VALT6">VALT6</option>';
+            Cdigo_options_str  += '<option value="VNOB6">VNOB6</option>';
+            Cdigo_options_str  += '<option value="VPAN6">VPAN6</option>';
+            Cdigo_options_str  += '<option value="YAGU6">YAGU6</option>';
+            Cdigo_options_str  += '<option value="ZFAL6">ZFAL6</option>';
+            Cdigo_options_str  += '<option value="ZFBA6">ZFBA6</option>';
+            Cdigo_options_str  += '<option value="ZFIS61">ZFIS61</option>';
+            Cdigo_options_str  += '<option value="ZFIS62">ZFIS62</option>';
+            Cdigo_options_str  += '<option value="ZFNI6">ZFNI6</option>';
+            Cdigo_options_str  += '<option value="ZFVA6">ZFVA6</option>';
+            sel_Cdigo.innerHTML = Cdigo_options_str;
+            div_Cdigo.appendChild(sel_Cdigo);
+            var lab_Cdigo = document.createElement('div');
+            lab_Cdigo.innerHTML = 'Código';
+            lab_Cdigo.className = 'filterlabel';
+            div_Cdigo.appendChild(lab_Cdigo);
+            var reset_Cdigo = document.createElement('div');
+            reset_Cdigo.innerHTML = 'clear filter';
+            reset_Cdigo.className = 'filterlabel';
+            reset_Cdigo.onclick = function() {
+                var options = document.getElementById("sel_Cdigo").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Cdigo.appendChild(reset_Cdigo);
+        resetLabels([layer_SUBESTACIONESEDESUR_1]);
+        map.on("zoomend", function(){
+            resetLabels([layer_SUBESTACIONESEDESUR_1]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_SUBESTACIONESEDESUR_1]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_SUBESTACIONESEDESUR_1]);
+        });
+        </script>
+    </body>
+</html>
